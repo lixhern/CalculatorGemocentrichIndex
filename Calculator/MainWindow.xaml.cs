@@ -102,16 +102,16 @@ namespace Calculator
             SetResult(resultNeirtofil, resultneitr);
             SetResult(resultLimfocit, resultlimf);
             SetResult(resultMonocit, resultmonoc);
-            SetResultReduction(resultLCRed, resultLCR, 120);
-            SetResultEncrease(resultCLRed, resultCLR, 77.7f);
-            SetResultEncrease(resultCARed, resultCAR, 2.51f);
-            SetResultEncrease(resultNLPRed, resultNLPR, 1.83f);
-            SetResultEncrease(resultNLRed, resultNLR, 3.8f);
-            SetResultReduction(resultCallyed, resultCally, 47);
-            SetResultReduction(resultTIGed, resultTIG, 12.8f);
-            SetResultEncrease(resultSIRIed, resultSIRI, 3.06f);
-            SetResultReduction(resultPNIed, resultPNI, 37);
-            SetResultEncrease(resultMIIed, resultMII, 334);
+            SetResult(resultLCRed, resultLCR, 120, (v, c) => v <= c);
+            SetResult(resultCLRed, resultCLR, 77.7f, (v,c) => v >= c);
+            SetResult(resultCARed, resultCAR, 2.51f, (v, c) => v >= c);
+            SetResult(resultNLPRed, resultNLPR, 1.83f, (v, c) => v >= c);
+            SetResult(resultNLRed, resultNLR, 3.8f, (v, c) => v >= c);
+            SetResult(resultCallyed, resultCally, 47, (v, c) => v <= c);
+            SetResult(resultTIGed, resultTIG, 12.8f, (v, c) => v <= c);
+            SetResult(resultSIRIed, resultSIRI, 3.06f, (v, c) => v >= c);
+            SetResult(resultPNIed, resultPNI, 37, (v, c) => v <= c);
+            SetResult(resultMIIed, resultMII, 334, (v, c) => v >= c);
         }
 
         private bool TryParseInput(TextBox inputBox, out float result, string fieldName)
@@ -130,16 +130,20 @@ namespace Calculator
             resultBlock.Text = value.ToString(CultureInfo.InvariantCulture);
         }
 
-        private void SetResultEncrease(TextBox resultBlock, float value, float compareDigit)
+        private void SetResult(TextBox resultBlock, float value, float compareDigit, Func<float, float, bool> compare)
         {
             resultBlock.Text = value.ToString(CultureInfo.InvariantCulture);
-            resultBlock.Foreground = value >= compareDigit ? Brushes.Red : new SolidColorBrush(Color.FromRgb(0x56, 0xb8, 0x14));
-        }
 
-        private void SetResultReduction(TextBox resultBlock, float value, float compareDigit)
-        {
-            resultBlock.Text = value.ToString(CultureInfo.InvariantCulture);
-            resultBlock.Foreground = value <= compareDigit ? Brushes.Red : new SolidColorBrush(Color.FromRgb(0x56, 0xb8, 0x14));
+            if (compare(value, compareDigit))
+            {
+                resultBlock.Foreground = Brushes.Red;
+                resultBlock.TextDecorations = TextDecorations.Underline;
+            }
+            else
+            {
+                resultBlock.Foreground = new SolidColorBrush(Color.FromRgb(0x56, 0xb8, 0x14));
+                resultBlock.TextDecorations = null;
+            }
         }
 
         private float CalculateNeutrophilPercentage(float leik, float neitrof)
