@@ -17,6 +17,7 @@ namespace Calculator
 {
     public partial class MainWindow : Window
     {
+        public static int COUNT = 0;
         public MainWindow()
         {
             InitializeComponent();
@@ -85,6 +86,7 @@ namespace Calculator
                 return;
             }
 
+            //string patientName = TextBox.fio;
             float resultneitr = CalculateNeutrophilPercentage(leik, neyr);
             float resultlimf = CalculateLymphocytePercentage(leik, lim);
             float resultmonoc = CalculateMonocytePercentage(leik, monoc);
@@ -112,6 +114,25 @@ namespace Calculator
             SetResult(resultSIRIed, resultSIRI, 3.06f, (v, c) => v >= c);
             SetResult(resultPNIed, resultPNI, 37, (v, c) => v <= c);
             SetResult(resultMIIed, resultMII, 334, (v, c) => v >= c);
+
+            ShowMessageBox(oritCheckBox.IsChecked);
+            COUNT = 0;
+        }
+
+        private void ShowMessageBox(bool? checkBoxStatus)
+        {
+            string message = string.Empty;
+
+            if (checkBoxStatus == true && COUNT > 6)
+                message = "Состояние пациента критическое с неблагоприятным прогнозом.";
+            else if (checkBoxStatus == false && COUNT > 6)
+                message = "Состояние пациента критическое.";
+            else if (COUNT < 6)
+                message = "Состояние пациента неудовлетворительное";
+            else if (COUNT == 0)
+                message = "Состояние пациента удовлетворительное.";
+
+            MessageBox.Show(message, "Результат", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private bool TryParseInput(TextBox inputBox, out float result, string fieldName)
@@ -138,6 +159,7 @@ namespace Calculator
             {
                 resultBlock.Foreground = Brushes.Red;
                 resultBlock.TextDecorations = TextDecorations.Underline;
+                COUNT++;
             }
             else
             {
