@@ -1,17 +1,7 @@
 ﻿using System.Globalization;
-using System.Reflection.Metadata;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Calculator
 {
@@ -75,30 +65,32 @@ namespace Calculator
 
         private void Button_click(object sender, RoutedEventArgs e)
         {
-            if (!TryParseInput(reakBelok, out float belok, "реак. белок") ||
-                !TryParseInput(leikochit, out float leik, "Лейкоциты") ||
-                !TryParseInput(albymin, out float albym, "Альбумин") ||
-                !TryParseInput(neyrofil, out float neyr, "Нейтрофилы") ||
-                !TryParseInput(limfo, out float lim, "Лимфоциты") ||
-                !TryParseInput(monocit, out float monoc, "Моноциты") ||
-                !TryParseInput(trombocit, out float tromb, "Тромбоциты"))
+            if (TryInputFio(fio, out string fioResult, "ФИО пациента") ||
+                TryParseInput(reakBelok, out float belok, "реак. белок") ||
+                TryParseInput(leikochit, out float leik, "Лейкоциты") ||
+                TryParseInput(albymin, out float albym, "Альбумин") ||
+                TryParseInput(neyrofil, out float neyr, "Нейтрофилы") ||
+                TryParseInput(limfo, out float lim, "Лимфоциты") ||
+                TryParseInput(monocit, out float monoc, "Моноциты") ||
+                TryParseInput(trombocit, out float tromb, "Тромбоциты")
+                )
             {
                 return;
             }
 
-            float resultneitr = CalculateNeutrophilPercentage(leik, neyr);
-            float resultlimf = CalculateLymphocytePercentage(leik, lim);
-            float resultmonoc = CalculateMonocytePercentage(leik, monoc);
-            float resultLCR = CalculateLCR(resultlimf, belok);
-            float resultCLR = CalculateCLR(belok, resultlimf);
-            float resultCAR = CalculateCAR(belok, albym);
-            float resultNLPR = CalculateNLPR(resultneitr, resultlimf, tromb);
-            float resultNLR = CalculateNLR(resultneitr, resultlimf);
-            float resultCally = CalculateCally(belok, albym, resultlimf);
-            float resultTIG = CalculateTIG(albym, resultlimf, tromb, belok, resultneitr);
-            float resultSIRI = CalculateSIRI(resultneitr, resultmonoc, resultlimf);
-            float resultPNI = CalculatePNI(albym, resultlimf);
-            float resultMII = CalculateMII(resultNLR, belok);
+            float resultneitr = CalculationHelper.CalculateNeutrophilPercentage(leik, neyr);
+            float resultlimf = CalculationHelper.CalculateLymphocytePercentage(leik, lim); 
+            float resultmonoc = CalculationHelper.CalculateMonocytePercentage(leik, monoc); 
+            float resultLCR = CalculationHelper.CalculateLCR(resultlimf, belok); 
+            float resultCLR = CalculationHelper.CalculateCLR(belok, resultlimf); 
+            float resultCAR = CalculationHelper.CalculateCAR(belok, albym); 
+            float resultNLPR = CalculationHelper.CalculateNLPR(resultneitr, resultlimf, tromb); 
+            float resultNLR = CalculationHelper.CalculateNLR(resultneitr, resultlimf); 
+            float resultCally = CalculationHelper.CalculateCally(belok, albym, resultlimf); 
+            float resultTIG = CalculationHelper.CalculateTIG(albym, resultlimf, tromb, belok, resultneitr); 
+            float resultSIRI = CalculationHelper.CalculateSIRI(resultneitr, resultmonoc, resultlimf); 
+            float resultPNI = CalculationHelper.CalculatePNI(albym, resultlimf);
+            float resultMII = CalculationHelper.CalculateMII(resultNLR, belok); 
 
             SetResult(resultNeirtofil, resultneitr);
             SetResult(resultLimfocit, resultlimf);
@@ -114,11 +106,29 @@ namespace Calculator
             SetResult(resultPNIed, resultPNI, 37, (v, c) => v <= c);
             SetResult(resultMIIed, resultMII, 334, (v, c) => v >= c);
 
-            ShowMessageBox(oritCheckBox.IsChecked, fio.Text);
+            PrintInfo printInfo = new PrintInfo(
+                fio.Text,
+                resultneitr,
+                resultlimf,
+                resultmonoc,
+                resultLCR,
+                resultCLR,
+                resultCAR,
+                resultNLPR,
+                resultNLR,
+                resultCally,
+                resultTIG,
+                resultSIRI,
+                resultPNI,
+                resultMII,
+                DateTime.Now
+                );
+
+            ShowMessageBox(oritCheckBox.IsChecked, printInfo);
             COUNT = 0;
         }
 
-        private void ShowMessageBox(bool? checkBoxStatus, string patienName) //to CustomMessageBox mb
+        private void ShowMessageBox(bool? checkBoxStatus, PrintInfo printInfo)
         {
             string message = string.Empty;
 
@@ -131,20 +141,21 @@ namespace Calculator
             else if (COUNT == 0)
                 message = "Состояние пациента удовлетворительное.";
 
-            CustomMessageBox customMessageBox = new CustomMessageBox(message, patienName);
+            CustomMessageBox customMessageBox = new CustomMessageBox(message, printInfo);
             customMessageBox.ShowDialog();
-            //MessageBox.Show(message, "Результат", MessageBoxButton.OK, MessageBoxImage.Information);
         }
+
+        private bool TryInputFio(TextBox inputBox, out string result, string fieldName)
+        {
+            result = inputBox.Text.Trim();
+
+            return !InputValidation.IsValidFio(result, fieldName);
+        }
+
 
         private bool TryParseInput(TextBox inputBox, out float result, string fieldName)
         {
-            result = 0;
-            if (string.IsNullOrEmpty(inputBox.Text) || !float.TryParse(inputBox.Text, out result))
-            {
-                MessageBox.Show($"Некорректное значение в поле '{fieldName}'");
-                return false;
-            }
-            return true;
+            return !InputValidation.TryParseFloat(inputBox.Text, out result, fieldName);
         }
 
         private void SetResult(TextBox resultBlock, float value)
@@ -167,71 +178,6 @@ namespace Calculator
                 resultBlock.Foreground = new SolidColorBrush(Color.FromRgb(0x56, 0xb8, 0x14));
                 resultBlock.TextDecorations = null;
             }
-        }
-
-        private float CalculateNeutrophilPercentage(float leik, float neitrof)
-        {
-            return (leik * neitrof) / 100;
-        }
-
-        private float CalculateLymphocytePercentage(float leik, float limfo)
-        {
-            return (leik * limfo) / 100;
-        }
-
-        private float CalculateMonocytePercentage(float leik, float monocit)
-        {
-            return (leik * monocit) / 100;
-        }
-
-        private float CalculateLCR(float limf10, float belok)
-        {
-            return (limf10 / belok) * 10000;
-        }
-
-        private float CalculateCLR(float belok, float limf10)
-        {
-            return belok / limf10;
-        }
-
-        private float CalculateCAR(float belok, float albym)
-        {
-            return belok / albym;
-        }
-
-        private float CalculateNLPR(float neitrofil, float limf, float trombocit)
-        {
-            return (neitrofil * 100) / (limf * trombocit);
-        }
-
-        private float CalculateNLR(float neitrofil10, float limf10)
-        {
-            return neitrofil10 / limf10;
-        }
-
-        private float CalculateCally(float belok, float albym, float limf10)
-        {
-            return ((albym * limf10) * 100) / belok;
-        }
-
-        private float CalculateTIG(float albym, float limf10, float tromb, float belok, float neitrof10)
-        {
-            return (albym * limf10 * tromb) / (belok * neitrof10);
-        }
-
-        private float CalculateSIRI(float neitrof10, float monocit10, float limf10)
-        {
-            return (neitrof10 * monocit10) / limf10;
-        }
-
-        private float CalculatePNI(float albym, float limf10)
-        {
-            return albym + (5 * limf10);
-        }
-
-        private float CalculateMII(float nlr, float belok)
-        {
-            return nlr * belok;
         }
     }
 }
