@@ -88,9 +88,9 @@ class GeneratorPDF
 
                     string underline = new string('_', rightData[i].Item2.ToString("0.######").Length);
                     Paragraph underlineParagraph = row.Cells[1].AddParagraph(underline);
-                    underlineParagraph.Format.Font.Size = 14; // Меньший шрифт для аккуратной линии
+                    underlineParagraph.Format.Font.Size = 14; 
                     underlineParagraph.Format.LeftIndent = "3cm";
-                    underlineParagraph.Format.SpaceBefore = "-12pt"; // Подгон расстояния между значением и линией
+                    underlineParagraph.Format.SpaceBefore = "-12pt"; 
                     underlineParagraph.Format.Alignment = ParagraphAlignment.Left;
                     underlineParagraph.Format.Font.Color = Colors.Red; 
                 }
