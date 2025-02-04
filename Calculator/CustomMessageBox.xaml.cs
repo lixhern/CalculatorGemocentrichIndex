@@ -28,16 +28,6 @@ namespace Calculator
             string pdfPath = $"{printInfo.PatientName}.pdf";
             GeneratorPDF.GeneratePDF(pdfPath, printInfo);
 
-/*            ProcessStartInfo startInfo = new ProcessStartInfo
-            {
-                FileName = pdfPath,   // Путь к PDF файлу
-                Verb = "print",           // печать
-                CreateNoWindow = true
-            };
-
-            // Запуск процесса печати 
-            Process.Start(startInfo);*/
-
             this.Close();
         }
     }

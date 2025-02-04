@@ -22,7 +22,7 @@ class GeneratorPDF
         date.Format.Alignment = ParagraphAlignment.Left;
         date.Format.SpaceAfter = "10pt";
 
-        Paragraph title = section.AddParagraph($"Гомоцентрические индексы\n{printInfo.PatientName}");
+        Paragraph title = section.AddParagraph($"Гемоцитометрические или композитные индексы\n{printInfo.PatientName}\n\n");
         title.Format.Font.Size = 20; 
         title.Format.Font.Bold = true;
         title.Format.Alignment = ParagraphAlignment.Center;
@@ -85,6 +85,14 @@ class GeneratorPDF
                 {
                     valueParagraph.Format.Font.Color = Colors.Red;
                     valueParagraph.Format.Font.Underline = Underline.Single;
+
+                    string underline = new string('_', rightData[i].Item2.ToString("0.######").Length);
+                    Paragraph underlineParagraph = row.Cells[1].AddParagraph(underline);
+                    underlineParagraph.Format.Font.Size = 14; // Меньший шрифт для аккуратной линии
+                    underlineParagraph.Format.LeftIndent = "3cm";
+                    underlineParagraph.Format.SpaceBefore = "-12pt"; // Подгон расстояния между значением и линией
+                    underlineParagraph.Format.Alignment = ParagraphAlignment.Left;
+                    underlineParagraph.Format.Font.Color = Colors.Red; 
                 }
                 else
                 {
